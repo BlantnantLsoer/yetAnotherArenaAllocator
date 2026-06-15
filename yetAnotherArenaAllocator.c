@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 
+#define ARENA_BASE_POSITION sizeof(arena)
+
 typedef struct {
   uint64_t pos;
   uint64_t capacity;
@@ -11,15 +13,15 @@ typedef struct {
 
 arena *createArena(uint64_t capacity) {
   arena *memarena =
-      (arena *)mmap(NULL, sizeof(arena) + capacity, PROT_READ | PROT_WRITE,
-                    MAP_PRIVATE | MAP_ANON, -1, 0);
+      (arena *)mmap(NULL, ARENA_BASE_POSITION + capacity,
+                    PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
   memarena->capacity = capacity;
-  memarena->pos = 0;
+  memarena->pos = ARENA_BASE_POSITION;
   return memarena;
 }
 
 void *arenaPush(arena *memarena, uint64_t size) {
-  if (memarena->pos + size > memarena->capacity) {
+  if ((memarena->pos + size) > (memarena->capacity + ARENA_BASE_POSITION)) {
     return NULL;
   }
   uint8_t *out = (uint8_t *)memarena + size;
