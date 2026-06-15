@@ -1,0 +1,1 @@
+this is a pisspoor attempt to make a arena allocator in c. if i'm being honest, it's pretty much a poorer version of magicalbat's video on it. however, this is not only to practice my c programming skills (i'm practically stealing his code) but also to practice basic git usage.
