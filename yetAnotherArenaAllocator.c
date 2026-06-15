@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/mman.h>
 
 typedef struct {
   uint64_t pos;
@@ -9,7 +10,9 @@ typedef struct {
 } arena;
 
 arena *createArena(uint64_t capacity) {
-  arena *memarena = (arena *)malloc(sizeof(arena) + capacity);
+  arena *memarena =
+      (arena *)mmap(NULL, sizeof(arena) + capacity, PROT_READ | PROT_WRITE,
+                    MAP_PRIVATE | MAP_ANON, -1, 0);
   memarena->capacity = capacity;
   memarena->pos = 0;
   return memarena;
@@ -23,13 +26,15 @@ void *arenaPush(arena *memarena, uint64_t size) {
   memarena->pos = memarena->pos + size;
   return out;
 }
-void freeArena(arena *memarena) { free(memarena); }
+void freeArena(arena *memarena) {
+  munmap(memarena, memarena->capacity + sizeof(arena));
+}
 
 int main(void) {
   arena *testArena = createArena(1024);
-  int *test = (int *)arenaPush(testArena, sizeof(int));
-  *test = 10;
+  int *test = arenaPush(testArena, sizeof(int));
+  *test = 8;
   printf("test: %d", *test);
-  free(testArena);
+  freeArena(testArena);
   return 0;
 }
