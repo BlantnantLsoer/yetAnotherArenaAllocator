@@ -34,8 +34,10 @@ void freeArena(arena *memarena) {
   arena *header = memarena - 1;
   munmap(header, header->capacity + ARENA_BASE_POSITION);
 }
+
+void arenaReset(arena *memarena) { memarena->offset = 0; }
 int main(void) {
-  arena *testArena = createArena(1024);
+  arena *testArena = createArena(1024 * 1024 * 1024);
   int *test = arenaPush(testArena, sizeof(int));
   int *test2 = arenaPush(testArena, sizeof(int));
   int *test3 = arenaPush(testArena, sizeof(int));
